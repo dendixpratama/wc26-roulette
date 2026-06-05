@@ -55,9 +55,9 @@ export function renderResults(results) {
             <span class="icon">📸</span>
             Simpan Sebagai Gambar
           </button>
-          <button class="btn btn--primary" id="btn-reset">
+          <button class="btn btn--primary" id="btn-reset" onclick="window.location.reload()">
             <span class="icon">🔄</span>
-            Main Lagi Ah
+            Main Lagi Gaskeun!
           </button>
         </div>
       </div>

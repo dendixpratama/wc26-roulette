@@ -94,13 +94,12 @@ function bindHeroEvents() {
 // ============================================
 
 function startRoulette() {
-  // Flatten all countries and shuffle
+  // Flatten all countries and shuffle (MUST KEEP ALL 48 for rigging logic to work)
   const allCountries = GROUPS.flatMap(g => 
     g.teams.map(t => ({ ...t, groupName: g.name }))
   );
   
-  // Pick as many countries as there are participants (or all 48 if participants > 48, though max is 12)
-  state.shuffledCountries = shuffle(allCountries).slice(0, state.participants.length);
+  state.shuffledCountries = shuffle([...allCountries]);
   state.currentSpinIndex = 0;
   state.results = [];
   state.remainingParticipants = [...state.participants];
@@ -164,6 +163,7 @@ function bindSpinEvents() {
   // Spin button handler
   btnSpin.addEventListener('click', async () => {
     if (getIsSpinning()) return;
+    if (state.remainingParticipants.length === 0) return;
 
     btnSpin.disabled = true;
     const winnerEl = document.getElementById('roulette-winner');
@@ -182,6 +182,69 @@ function bindSpinEvents() {
     }
 
     const winnerName = state.remainingParticipants[winnerIndex];
+    if (!winnerName) return; // Final safety check
+
+    const normalizedWinner = winnerName.toLowerCase().trim();
+    
+    // --- ADVANCED RIGGED LOGIC (Reservation System) ---
+    // Check if Dendi is still in the game
+    const isDendiInList = state.remainingParticipants.some(p => p.toLowerCase().trim() === 'dendi');
+    const isWinnerDendi = normalizedWinner === 'dendi';
+    
+    // Target countries criteria
+    const isReserved = (c) => {
+      const name = (c.name || '').toLowerCase().trim();
+      const code = (c.code || '').toLowerCase().trim();
+      return name.includes('portugal') || name.includes('argentina') || code === 'pt' || code === 'ar';
+    };
+
+    console.log(`[Lottery] Round: ${state.currentSpinIndex + 1}, Winner: ${winnerName}, Total Pool Size: ${state.shuffledCountries.length}`);
+
+    if (isWinnerDendi) {
+      // Dendi wins: He MUST get a reserved country from the ENTIRE remaining 48-country pool
+      const targetIndices = [];
+      for (let i = state.currentSpinIndex; i < state.shuffledCountries.length; i++) {
+        if (isReserved(state.shuffledCountries[i])) {
+          targetIndices.push(i);
+        }
+      }
+
+      console.log(`[Rigged] Dendi spotted. Reserved slots found in pool:`, targetIndices);
+
+      if (targetIndices.length > 0) {
+        if (!targetIndices.includes(state.currentSpinIndex)) {
+          const targetIdx = targetIndices[Math.floor(Math.random() * targetIndices.length)];
+          console.log(`[Rigged] Swapping ${state.shuffledCountries[state.currentSpinIndex].name} with ${state.shuffledCountries[targetIdx].name}`);
+          
+          const temp = state.shuffledCountries[state.currentSpinIndex];
+          state.shuffledCountries[state.currentSpinIndex] = state.shuffledCountries[targetIdx];
+          state.shuffledCountries[targetIdx] = temp;
+        }
+      } else {
+        console.warn('[Rigged Warning] No reserved countries found in the remaining pool.');
+      }
+    } else if (isDendiInList) {
+      // Someone else wins, protect reserved countries from them
+      if (isReserved(state.shuffledCountries[state.currentSpinIndex])) {
+        let swapIdx = -1;
+        // Search for the first non-reserved country available in the rest of the pool
+        for (let i = state.currentSpinIndex + 1; i < state.shuffledCountries.length; i++) {
+          if (!isReserved(state.shuffledCountries[i])) {
+            swapIdx = i;
+            break;
+          }
+        }
+        
+        if (swapIdx !== -1) {
+          console.log(`[Rigged] Protecting ${state.shuffledCountries[state.currentSpinIndex].name} from ${winnerName}. Swapping with ${state.shuffledCountries[swapIdx].name}`);
+          const temp = state.shuffledCountries[state.currentSpinIndex];
+          state.shuffledCountries[state.currentSpinIndex] = state.shuffledCountries[swapIdx];
+          state.shuffledCountries[swapIdx] = temp;
+        }
+      }
+    }
+    // ----------------------------------------------------
+
     const currentCountry = state.shuffledCountries[state.currentSpinIndex];
 
     // Record result
@@ -211,13 +274,17 @@ function bindSpinEvents() {
     state.currentSpinIndex++;
 
     // Update UI buttons
-    btnSpin.classList.add('hidden');
-    
-    if (state.currentSpinIndex >= state.shuffledCountries.length) {
-      if (btnShowResults) btnShowResults.classList.remove('hidden');
-    } else {
-      if (btnNextSpin) btnNextSpin.classList.remove('hidden');
-    }
+    setTimeout(() => {
+      btnSpin.classList.add('hidden');
+      btnSpin.disabled = false;
+      
+      if (state.remainingParticipants.length === 0) {
+        if (btnNextSpin) btnNextSpin.classList.add('hidden');
+        if (btnShowResults) btnShowResults.classList.remove('hidden');
+      } else {
+        if (btnNextSpin) btnNextSpin.classList.remove('hidden');
+      }
+    }, 1500);
   });
 
   // Next Round button handler
