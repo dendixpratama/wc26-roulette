@@ -31,11 +31,11 @@ export function renderHero() {
 
       <div class="hero__stats">
         <div class="hero__stat">
-          <div class="hero__stat-value">48</div>
+          <div class="hero__stat-value">16</div>
           <div class="hero__stat-label">Negara</div>
         </div>
         <div class="hero__stat">
-          <div class="hero__stat-value">12</div>
+          <div class="hero__stat-value">4</div>
           <div class="hero__stat-label">Grup</div>
         </div>
         <div class="hero__stat">

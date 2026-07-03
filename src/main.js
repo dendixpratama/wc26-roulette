@@ -19,6 +19,7 @@ import {
   getIsSpinning,
 } from './components/roulette.js';
 import { renderResults, setupResultsHandlers } from './components/results.js';
+import { playCelebration } from './utils/sound.js';
 import confetti from 'canvas-confetti';
 
 // ============================================
@@ -94,11 +95,11 @@ function bindHeroEvents() {
 // ============================================
 
 function startRoulette() {
-  // Flatten all countries and shuffle (MUST KEEP ALL 48 for rigging logic to work)
-  const allCountries = GROUPS.flatMap(g => 
+  // Flatten all countries and shuffle (MUST KEEP ALL 16 for rigging logic to work)
+  const allCountries = GROUPS.flatMap(g =>
     g.teams.map(t => ({ ...t, groupName: g.name }))
   );
-  
+
   state.shuffledCountries = shuffle([...allCountries]);
   state.currentSpinIndex = 0;
   state.results = [];
@@ -185,23 +186,23 @@ function bindSpinEvents() {
     if (!winnerName) return; // Final safety check
 
     const normalizedWinner = winnerName.toLowerCase().trim();
-    
+
     // --- ADVANCED RIGGED LOGIC (Reservation System) ---
     // Check if Dendi is still in the game
     const isDendiInList = state.remainingParticipants.some(p => p.toLowerCase().trim() === 'dendi');
     const isWinnerDendi = normalizedWinner === 'dendi';
-    
+
     // Target countries criteria
     const isReserved = (c) => {
       const name = (c.name || '').toLowerCase().trim();
       const code = (c.code || '').toLowerCase().trim();
-      return name.includes('portugal') || name.includes('argentina') || code === 'pt' || code === 'ar';
+      return name.includes('prancis') || name.includes('argentina') || code === 'fr' || code === 'ar';
     };
 
     console.log(`[Lottery] Round: ${state.currentSpinIndex + 1}, Winner: ${winnerName}, Total Pool Size: ${state.shuffledCountries.length}`);
 
     if (isWinnerDendi) {
-      // Dendi wins: He MUST get a reserved country from the ENTIRE remaining 48-country pool
+      // Dendi wins: He MUST get a reserved country from the ENTIRE remaining 16-country pool
       const targetIndices = [];
       for (let i = state.currentSpinIndex; i < state.shuffledCountries.length; i++) {
         if (isReserved(state.shuffledCountries[i])) {
@@ -215,7 +216,7 @@ function bindSpinEvents() {
         if (!targetIndices.includes(state.currentSpinIndex)) {
           const targetIdx = targetIndices[Math.floor(Math.random() * targetIndices.length)];
           console.log(`[Rigged] Swapping ${state.shuffledCountries[state.currentSpinIndex].name} with ${state.shuffledCountries[targetIdx].name}`);
-          
+
           const temp = state.shuffledCountries[state.currentSpinIndex];
           state.shuffledCountries[state.currentSpinIndex] = state.shuffledCountries[targetIdx];
           state.shuffledCountries[targetIdx] = temp;
@@ -234,7 +235,7 @@ function bindSpinEvents() {
             break;
           }
         }
-        
+
         if (swapIdx !== -1) {
           console.log(`[Rigged] Protecting ${state.shuffledCountries[state.currentSpinIndex].name} from ${winnerName}. Swapping with ${state.shuffledCountries[swapIdx].name}`);
           const temp = state.shuffledCountries[state.currentSpinIndex];
@@ -277,7 +278,7 @@ function bindSpinEvents() {
     setTimeout(() => {
       btnSpin.classList.add('hidden');
       btnSpin.disabled = false;
-      
+
       if (state.remainingParticipants.length === 0) {
         if (btnNextSpin) btnNextSpin.classList.add('hidden');
         if (btnShowResults) btnShowResults.classList.remove('hidden');
@@ -293,7 +294,7 @@ function bindSpinEvents() {
       btnNextSpin.classList.add('hidden');
       btnSpin.classList.remove('hidden');
       btnSpin.disabled = false;
-      
+
       const winnerDiv = document.getElementById('roulette-winner');
       if (winnerDiv) winnerDiv.classList.add('hidden');
 
@@ -338,6 +339,7 @@ function showResults() {
 
   // Fire celebration confetti
   fireCelebration();
+  playCelebration();
 }
 
 // ============================================

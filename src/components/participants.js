@@ -7,7 +7,7 @@ export function renderParticipants() {
     <section class="section participants" id="section-participants">
       <h2 class="section-title">👥 Peserta Undian</h2>
       <p class="section-subtitle">
-        Masukkan nama peserta yang ikut undian (minimal 2, maksimal 12 orang).
+        Masukkan nama peserta yang ikut undian (minimal 2, maksimal 16 orang).
       </p>
 
       <div class="participants__container">
@@ -29,7 +29,7 @@ export function renderParticipants() {
 
         <div class="participants__footer">
           <div class="participants__count" id="participants-count">
-            <span>0</span> / 12 peserta
+            <span>0</span> / 16 peserta
           </div>
           <button class="btn btn--gold" id="btn-confirm" disabled>
             <span class="icon">🎰</span>
@@ -54,7 +54,7 @@ export function setupParticipantHandlers(state, onUpdate) {
   function addParticipant() {
     const name = input.value.trim();
     if (!name) return;
-    if (state.participants.length >= 12) {
+    if (state.participants.length >= 16) {
       shakeElement(input);
       return;
     }
@@ -87,7 +87,7 @@ export function setupParticipantHandlers(state, onUpdate) {
       </div>
     `).join('');
 
-    countEl.innerHTML = `<span>${state.participants.length}</span> / 12 peserta`;
+    countEl.innerHTML = `<span>${state.participants.length}</span> / 16 peserta`;
     btnConfirm.disabled = state.participants.length < 2;
 
     // Rebind remove buttons
