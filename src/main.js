@@ -214,7 +214,8 @@ function bindSpinEvents() {
 
     const normalizedWinner = winnerName.toLowerCase().trim();
 
-    // --- ADVANCED RIGGED LOGIC (Reservation System) ---
+    // --- ADVANCED RIGGED LOGIC (Reservation System) --- [DISABLED]
+    /*
     // Check if VIPs are still in the game
     const isDendiInList = state.remainingParticipants.some(p => p.toLowerCase().trim() === 'dendi');
     const isDendayInList = state.remainingParticipants.some(p => p.toLowerCase().trim() === 'denday');
@@ -299,6 +300,7 @@ function bindSpinEvents() {
         }
       }
     }
+    */
     // ----------------------------------------------------
 
     const currentCountry = state.shuffledCountries[state.currentSpinIndex];
