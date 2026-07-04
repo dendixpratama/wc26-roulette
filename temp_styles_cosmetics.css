@@ -1,0 +1,47 @@
+
+/* ============================================
+   COSMETIC UPGRADES: NICKNAME, CAPTAIN, TITLE
+   ============================================ */
+.modal-nickname {
+  font-size: 0.9rem;
+  color: var(--gold);
+  font-weight: 500;
+  margin-top: 2px;
+  opacity: 0.9;
+}
+.modal-coach {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.pitch-title {
+  text-align: center;
+  font-family: var(--font-heading);
+  color: var(--gold);
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.captain-band {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #FFDF00;
+  color: #000;
+  font-weight: bold;
+  font-size: 0.6rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  border: 1px solid #000;
+  z-index: 2;
+}
+.mini-pitch-wrapper {
+  flex-direction: column;
+}

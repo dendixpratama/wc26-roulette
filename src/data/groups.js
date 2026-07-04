@@ -7,8 +7,8 @@ export const GROUPS = [
   {
     name: 'A',
     teams: [
-      { name: 'Paraguay', code: 'py', flag: '🇵🇾' },
       { name: 'Prancis', code: 'fr', flag: '🇫🇷' },
+      { name: 'Paraguay', code: 'py', flag: '🇵🇾' },
       { name: 'Kanada', code: 'ca', flag: '🇨🇦' },
       { name: 'Maroko', code: 'ma', flag: '🇲🇦' },
     ],
@@ -34,9 +34,9 @@ export const GROUPS = [
   {
     name: 'D',
     teams: [
-      { name: 'Australia/Mesir', code: 'un', flag: '🏳️' },
+      { name: 'Mesir', code: 'eg', flag: '🇪🇬' },
       { name: 'Swiss', code: 'ch', flag: '🇨🇭' },
-      { name: 'Kolombia/Ghana', code: 'un', flag: '🏳️' },
+      { name: 'Kolombia', code: 'co', flag: '🇨🇴' },
       { name: 'Spanyol', code: 'es', flag: '🇪🇸' },
     ],
   },

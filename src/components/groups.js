@@ -15,8 +15,8 @@ export function renderGroups() {
 
   const m5 = { date: 'Jul 6', t1: teams[7], t2: teams[8] }; // Brasil vs Norwegia
   const m6 = { date: 'Jul 6', t1: teams[9], t2: teams[10] }; // Meksiko vs Inggris
-  const m7 = { date: 'Jul 7', t1: teams[11], t2: teams.find(t => t.name.includes('Australia')) }; // Argentina vs Australia/Mesir
-  const m8 = { date: 'Jul 8', t1: teams[13], t2: teams.find(t => t.name.includes('Kolombia')) }; // Swiss vs Kolombia/Ghana
+  const m7 = { date: 'Jul 7', t1: teams[11], t2: teams.find(t => t.name === 'Mesir') }; // Argentina vs Mesir
+  const m8 = { date: 'Jul 8', t1: teams[13], t2: teams.find(t => t.name === 'Kolombia') }; // Swiss vs Kolombia
 
   const renderTeam = (team) => `
     <div class="bracket-team" data-team="${team.name}">

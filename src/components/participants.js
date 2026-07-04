@@ -1,6 +1,7 @@
 /**
  * Participants Input Section Component
  */
+import { showToast } from '../utils/toast.js';
 
 export function renderParticipants() {
   return `
@@ -59,6 +60,7 @@ export function setupParticipantHandlers(state, onUpdate) {
       return;
     }
     if (state.participants.some(p => p.toLowerCase() === name.toLowerCase())) {
+      showToast('Nama sudah digunakan!', 'error');
       shakeElement(input);
       return;
     }
@@ -118,7 +120,11 @@ function shakeElement(el) {
   el.style.animation = 'none';
   el.offsetHeight; // force reflow
   el.style.animation = 'shake 0.4s ease';
-  setTimeout(() => { el.style.animation = ''; }, 400);
+  el.classList.add('input-error');
+  setTimeout(() => { 
+    el.style.animation = ''; 
+    el.classList.remove('input-error');
+  }, 600);
 }
 
 function escapeHtml(text) {

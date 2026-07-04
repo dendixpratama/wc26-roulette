@@ -27,6 +27,10 @@ export function renderHero() {
           <span class="icon">🚀</span>
           Gaskeun Sekarang!
         </button>
+        <button class="btn btn--secondary" id="btn-open-stats">
+          <span class="icon">📊</span>
+          Statistik Skuad
+        </button>
       </div>
 
       <div class="hero__stats">

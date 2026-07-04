@@ -19,6 +19,7 @@ import {
   getIsSpinning,
 } from './components/roulette.js';
 import { renderResults, setupResultsHandlers } from './components/results.js';
+import { renderStatsPage, bindStatsEvents } from './components/stats.js';
 import { playCelebration } from './utils/sound.js';
 import confetti from 'canvas-confetti';
 
@@ -88,6 +89,32 @@ function bindHeroEvents() {
       startRoulette();
     }
   });
+
+  const btnStats = document.getElementById('btn-open-stats');
+  if (btnStats) {
+    btnStats.addEventListener('click', () => {
+      showStatsPage();
+    });
+  }
+}
+
+// ============================================
+// STATS PAGE ROUTING
+// ============================================
+
+function showStatsPage() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="bg-gradient"></div>
+    ${renderStatsPage()}
+  `;
+  
+  bindStatsEvents(() => {
+    // Back to home
+    init();
+  });
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ============================================
@@ -188,21 +215,26 @@ function bindSpinEvents() {
     const normalizedWinner = winnerName.toLowerCase().trim();
 
     // --- ADVANCED RIGGED LOGIC (Reservation System) ---
-    // Check if Dendi is still in the game
+    // Check if VIPs are still in the game
     const isDendiInList = state.remainingParticipants.some(p => p.toLowerCase().trim() === 'dendi');
+    const isDendayInList = state.remainingParticipants.some(p => p.toLowerCase().trim() === 'denday');
+    const hasVIP = isDendiInList || isDendayInList;
+    
     const isWinnerDendi = normalizedWinner === 'dendi';
+    const isWinnerDenday = normalizedWinner === 'denday';
+    const isWinnerVIP = isWinnerDendi || isWinnerDenday;
 
     // Target countries criteria
     const isReserved = (c) => {
       const name = (c.name || '').toLowerCase().trim();
       const code = (c.code || '').toLowerCase().trim();
-      return name.includes('prancis') || name.includes('argentina') || code === 'fr' || code === 'ar';
+      return name.includes('prancis') || name.includes('argentina') || name.includes('portugal') || code === 'fr' || code === 'ar' || code === 'pt';
     };
 
     console.log(`[Lottery] Round: ${state.currentSpinIndex + 1}, Winner: ${winnerName}, Total Pool Size: ${state.shuffledCountries.length}`);
 
-    if (isWinnerDendi) {
-      // Dendi wins: He MUST get a reserved country from the ENTIRE remaining 16-country pool
+    if (isWinnerVIP) {
+      // VIP wins: MUST get a reserved country from the ENTIRE remaining pooled slots
       const targetIndices = [];
       for (let i = state.currentSpinIndex; i < state.shuffledCountries.length; i++) {
         if (isReserved(state.shuffledCountries[i])) {
@@ -210,21 +242,44 @@ function bindSpinEvents() {
         }
       }
 
-      console.log(`[Rigged] Dendi spotted. Reserved slots found in pool:`, targetIndices);
+      console.log(`[Rigged] VIP spotted (${winnerName}). Reserved slots found in pool:`, targetIndices);
 
       if (targetIndices.length > 0) {
-        if (!targetIndices.includes(state.currentSpinIndex)) {
-          const targetIdx = targetIndices[Math.floor(Math.random() * targetIndices.length)];
-          console.log(`[Rigged] Swapping ${state.shuffledCountries[state.currentSpinIndex].name} with ${state.shuffledCountries[targetIdx].name}`);
+        // Build Weighted Pool (Raffle Tickets)
+        let weightPool = [];
+        targetIndices.forEach(idx => {
+            const cName = state.shuffledCountries[idx].name.toLowerCase();
+            if (cName.includes('prancis')) {
+                let weight = isWinnerDendi ? 60 : 10;
+                for (let i = 0; i < weight; i++) weightPool.push(idx);
+            } else if (cName.includes('argentina')) {
+                for (let i = 0; i < 30; i++) weightPool.push(idx);
+            } else if (cName.includes('portugal')) {
+                let weight = isWinnerDendi ? 10 : 60;
+                for (let i = 0; i < weight; i++) weightPool.push(idx);
+            } else {
+                weightPool.push(idx); // Fallback
+            }
+        });
+
+        if (weightPool.length === 0) weightPool = targetIndices; // failsafe
+
+        // Draw randomly from weighted pool
+        const targetIdx = weightPool[Math.floor(Math.random() * weightPool.length)];
+        
+        if (targetIdx !== state.currentSpinIndex) {
+          console.log(`[Rigged] Swapping ${state.shuffledCountries[state.currentSpinIndex].name} with ${state.shuffledCountries[targetIdx].name} (Weighted Lottery)`);
 
           const temp = state.shuffledCountries[state.currentSpinIndex];
           state.shuffledCountries[state.currentSpinIndex] = state.shuffledCountries[targetIdx];
           state.shuffledCountries[targetIdx] = temp;
+        } else {
+          console.log(`[Rigged] VIP naturally aligned with ${state.shuffledCountries[targetIdx].name} upon weighted draw.`);
         }
       } else {
-        console.warn('[Rigged Warning] No reserved countries found in the remaining pool.');
+        console.warn('[Rigged Warning] No reserved countries found in the remaining pool. Used up?');
       }
-    } else if (isDendiInList) {
+    } else if (hasVIP) {
       // Someone else wins, protect reserved countries from them
       if (isReserved(state.shuffledCountries[state.currentSpinIndex])) {
         let swapIdx = -1;
